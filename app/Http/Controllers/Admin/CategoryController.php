@@ -136,7 +136,7 @@ class CategoryController extends Controller
             // resize image for category and upload
             $categoryImage = Image::make($image)->resize(1600,479)->save($imageName);
             Storage::disk('public')->put('category/'.$imageName, $categoryImage);
-
+            
             // check category slider dir is exists
             if (!Storage::disk('public')->exists('category/slider')) {
                 Storage::disk('public')->makeDirectory('category/slider');
@@ -168,6 +168,20 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $category = Category::find($id);
+
+        if (Storage::disk('public')->exists('category/'.$category->image)) {
+            Storage::disk('public')->delete('category/'.$category->image);
+        }
+
+        if (Storage::disk('public')->exists('category/slider/'.$category->image)) {
+            Storage::disk('public')->delete('category/slider/'.$category->image);
+        }
+
+        $category->delete();
+
+        Toastr::success('Category Successfuly Deleted', 'Success');
+        return redirect()->back();
+
     }
 }
