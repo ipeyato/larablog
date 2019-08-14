@@ -1,6 +1,6 @@
 @extends('layouts.backend.app')
 
-@section('title', 'Tag')
+@section('title', 'Post')
     
 @push('css')
 <link href="{{ asset('assets/backend/plugins/jquery-datatable/skin/bootstrap/css/dataTables.bootstrap.css') }}" rel="stylesheet">
@@ -9,9 +9,9 @@
 @section('content')
 <div class="container-fluid">
     <div class="block-header">
-        <a href="{{ route('admin.tag.create') }}" class="btn btn-primary waves-effect">
+        <a href="{{ route('admin.post.create') }}" class="btn btn-primary waves-effect">
             <i class="material-icons">add</i>
-            <span>Add New Tag</span>
+            <span>Add New Post</span>
         </a>
     </div>
     <!-- Exportable Table -->
@@ -20,8 +20,8 @@
             <div class="card">
                 <div class="header">
                     <h2>
-                        ALL TAGS
-                        <span class="badge bg-info">{{ $tags->count() }}</span>
+                        ALL POSTS
+                        <span class="badge bg-info">{{ $posts->count() }}</span>
                     </h2>
                 </div>
                 <div class="body">
@@ -30,10 +30,11 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>name</th>
-                                    <th>slug</th>
-                                    <th>Post Count</th>
-                                    <th>Create at</th>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th><i class="material-icons">visibility</i></th>
+                                    <th>Is Approved</th>
+                                    <th>Status</th>
                                     <th>Updated at</th>
                                     <th>Actions</th>
                                 </tr>
@@ -41,31 +42,46 @@
                             <tfoot>
                                 <tr>
                                     <th>ID</th>
-                                    <th>name</th>
-                                    <th>slug</th>
-                                    <th>Post Count</th>
-                                    <th>Created at</th>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th><i class="material-icons">visibility</i></th>
+                                    <th>Is Approved</th>
+                                    <th>Status</th>
                                     <th>Updated at</th>
                                     <th>Actions</th>
                                 </tr>
                             </tfoot>
                             <tbody>
-                                @foreach ($tags as $key => $tag)
+                                @foreach ($posts as $key => $post)
                                 <tr>
                                     <td>{{ $key + 1 }}</td>
-                                    <td>{{ $tag->name }}</td>
-                                    <td>{{ $tag->slug }}</td>
-                                    <td>{{ $tag->posts->count() }}</td>
-                                    <td>{{ $tag->created_at }}</td>
-                                    <td>{{ $tag->updated_at }}</td>
+                                    <td>{{ str_limit($post->title, 10) }}</td>
+                                    <td>{{ $post->user->name }}</td>
+                                    <td>{{ $post->view_count }}</td>
+                                    <td>
+                                        @if ($post->is_approved == true)
+                                            <span class="badge bg-blue">Aprroved</span>
+                                        @else
+                                            <span class="badge bg-pink">Pending</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($post->status == true)
+                                            <span class="badge bg-blue">Published</span>
+                                        @else
+                                            <span class="badge bg-pink">Pending</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $post->created_at }}</td>
+                                    <td>{{ $post->updated_at }}</td>
                                     <td class="text-center">
-                                        <a href="{{ route('admin.tag.edit', $tag->id) }}" class="btn btn-info waves-effect">
+                                        <a href="{{ route('admin.post.edit', $post->id) }}" class="btn btn-info waves-effect">
                                             <i class="material-icons">edit</i>
                                         </a>
-                                        <button type="button" class="btn btn-danger waves-effect" onclick="deleteTag({{ $tag->id }})">
+                                        <button type="button" class="btn btn-danger waves-effect" onclick="deletePost({{ $post->id }})">
                                             <i class="material-icons">delete</i>
                                         </button>
-                                        <form id="delete-form-{{ $tag->id }}" action="{{ route('admin.tag.destroy', $tag->id) }}" method="POST" style="display:none;">
+                                        <form id="delete-form-{{ $post->id }}" action="{{ route('admin.post.destroy', $post->id) }}" method="POST" style="display:none;">
                                             @csrf
                                             @method('delete')
                                         </form>
@@ -98,7 +114,7 @@
 <script src="{{ asset('assets/backend/js/pages/tables/jquery-datatable.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
 <script type="text/javascript">
-    function deleteTag(id){
+    function deletePost(id){
         const swalWithBootstrapButtons = Swal.mixin({
         customClass: {
             confirmButton: 'btn btn-success',
